@@ -1,0 +1,691 @@
+{
+  "title": "M5 Sales Forecasting - Final Project Roadmap",
+  "version": 1,
+  "phases": [
+    {
+      "id": "p1",
+      "name": "Phase 1 - Scope definition",
+      "description": "Keep M5 + MySQL > KNIME > MySQL > Power BI + Linear Regression. Adjust grain, outlier policy and features (scope v2).",
+      "tasks": [
+        {
+          "id": "e1a",
+          "text": "DQ1 Stock-out risk: which stores have actual > forecast in >= 8/10 full weeks, and by how many units?",
+          "status": "todo",
+          "note": "Grade 1. Metric + threshold + action; save in process/decision.md"
+        },
+        {
+          "id": "e1b",
+          "text": "DQ2 Revenue priority: which store has the highest weekly revenue MAE (USD), and does it match the unit-error ranking?",
+          "status": "todo",
+          "note": "Needs sell_prices (p2 e2d)"
+        },
+        {
+          "id": "e1c",
+          "text": "DQ3 State bias: is revenue forecast bias per state beyond +/-5%, driven by one store or several?",
+          "status": "todo",
+          "note": "Q4/Q5 stay as supporting analysis in Phase 6"
+        },
+        {
+          "id": "e1d",
+          "text": "Reconcile decision sources: required_files needs >= 3 measurable questions; map DQ1-3 to scope-v2 Q1-Q3 (or state which set the report uses)",
+          "status": "todo",
+          "note": "Gate: 3 questions, each with metric, threshold, action"
+        },
+        {
+          "id": "p1t1",
+          "text": "Pivot to M5 Walmart dataset (11.1M rows, 3 states, 10 stores)",
+          "status": "done",
+          "note": ""
+        },
+        {
+          "id": "p1t2",
+          "text": "Group SWOT, communication plan, 4-week WBS",
+          "status": "done",
+          "note": "Week 1 slides"
+        },
+        {
+          "id": "p1t3",
+          "text": "Draft decision questions Q1-Q3",
+          "status": "partial",
+          "note": "Drafted in W1 slides; need rewrite (see below)"
+        },
+        {
+          "id": "p1t4",
+          "text": "Document dataset source, owner and licence (M5 / Kaggle) for Section 2",
+          "status": "partial",
+          "note": "Source known, licence text not cited yet"
+        },
+        {
+          "id": "p1t5",
+          "text": "Name the decision-maker (e.g. regional inventory / replenishment manager)",
+          "status": "done",
+          "note": ""
+        },
+        {
+          "id": "p1t6",
+          "text": "Confirm scope v2: store x dept x WEEK grain, week-ahead forecast",
+          "status": "done",
+          "note": "Daily item-level WAPE 70-118% vs weekly dept-store 6.8%"
+        },
+        {
+          "id": "p1t7",
+          "text": "Rewrite Q1: weekly units by store x dept for reorder quotas, with a measurable target (e.g. WAPE <= 10%)",
+          "status": "done",
+          "note": ""
+        },
+        {
+          "id": "p1t8",
+          "text": "Rewrite Q2: slowest-growing store/category (TX +7%, WI +25%, CA_3 -4%) + SNAP lever",
+          "status": "done",
+          "note": "Use first vs last 28 days (same season)"
+        },
+        {
+          "id": "p1t9",
+          "text": "Rewrite Q3: SNAP / weekday / event uplift (holiday lift +14.2% not reproducible; events about -4%)",
+          "status": "done",
+          "note": "SNAP: WI +20.5%, TX +10.1%, CA +6.0%"
+        },
+        {
+          "id": "p1t10",
+          "text": "Fix required_files.md: official brief only asks for outlier 'retain or handle' rationale, not removal",
+          "status": "done",
+          "note": ""
+        }
+      ]
+    },
+    {
+      "id": "p2",
+      "name": "Phase 2 - Data walk-through, outliers, variables",
+      "description": "Verify what is really in MySQL, fix duplicates, add the missing data, replace the 'delete sales > 2.5' rule.",
+      "tasks": [
+        {
+          "id": "e2a",
+          "text": "Verify before trusting: SELECT COUNT(*), COUNT(DISTINCT id, day) FROM sales_history; expect 11,128,850",
+          "status": "todo",
+          "note": "Record result as a finding even if not doubled"
+        },
+        {
+          "id": "e2b",
+          "text": "Write sql/01_schema_and_import.sql: DDL with PK/FK, indexes, LOAD DATA with placeholder paths",
+          "status": "todo",
+          "note": "Remove /media/deltan/... paths"
+        },
+        {
+          "id": "e2c",
+          "text": "Write sql/02_feature_engineering.sql: LEFT JOIN calendar ON day = d; is_holiday, snap, day indices, weekday",
+          "status": "todo",
+          "note": ""
+        },
+        {
+          "id": "e2d",
+          "text": "Check sell_prices coverage in the window (expect ~99.8%) and keep the revenue join key documented",
+          "status": "todo",
+          "note": ""
+        },
+        {
+          "id": "e2e",
+          "text": "Four quality checks with exact counts: completeness, uniqueness, validity (negatives, price <= 0, closed-store days), outliers",
+          "status": "todo",
+          "note": "Grade 2. Produce Before vs After table: rows, %, cleaning rationale"
+        },
+        {
+          "id": "e2f",
+          "text": "Record outlier rows and units affected under the train-only IQR k=1.5 cap policy",
+          "status": "todo",
+          "note": ""
+        },
+        {
+          "id": "e2g",
+          "text": "Write sql/04_sales_predictions_schema.sql with UNIQUE key and required columns (forecast_day, predicted_sales, actual_sales, model_name, prediction_date)",
+          "status": "todo",
+          "note": ""
+        },
+        {
+          "id": "e2h",
+          "text": "Gate: counts verified, Before/After table filled with real numbers, no [TBD] left in Week 1 data-quality doc",
+          "status": "todo",
+          "note": ""
+        },
+        {
+          "id": "p2t1",
+          "text": "Load sales_history (CSV last 365 days) and calendar into MySQL",
+          "status": "done",
+          "note": ""
+        },
+        {
+          "id": "p2t2",
+          "text": "Verify sales_history row count: expect 11,128,850 (import log says 22,257,700 = 2x)",
+          "status": "todo",
+          "note": "SELECT COUNT(*), COUNT(DISTINCT id, day)"
+        },
+        {
+          "id": "p2t3",
+          "text": "If doubled: dedupe / reload sales_history; add PK (id, day) and indexes",
+          "status": "todo",
+          "note": ""
+        },
+        {
+          "id": "p2t4",
+          "text": "Dedupe script for sales_predictions (39,496 > 19,748)",
+          "status": "partial",
+          "note": "Script exists; Power BI still shows 39.496K records. Add UNIQUE key."
+        },
+        {
+          "id": "p2t5",
+          "text": "Load sell_prices into MySQL (99.8% coverage in window)",
+          "status": "todo",
+          "note": "Needed for revenue KPIs"
+        },
+        {
+          "id": "p2t6",
+          "text": "Correct Week 1/2 stats: LIMIT 100000 covered only 3.3 days (d_1577-1580)",
+          "status": "todo",
+          "note": "87,390 rows / mean 0.394 / category shares are not full-year"
+        },
+        {
+          "id": "p2t7",
+          "text": "Quality audit on full data: completeness, uniqueness, validity, outliers + Before/After table",
+          "status": "partial",
+          "note": "Profiling done off-CSV; needs SQL/KNIME version in project"
+        },
+        {
+          "id": "p2t8",
+          "text": "Flag structural zeros: store_closed (Dec 25 = 14 units chain-wide), on_sale from price",
+          "status": "todo",
+          "note": ""
+        },
+        {
+          "id": "p2t9",
+          "text": "Outlier policy: series-grouped IQR on TRAIN weeks only, cap instead of delete; document units retained",
+          "status": "todo",
+          "note": "Old rule removed 14% rows = 73% of units"
+        },
+        {
+          "id": "p2t10",
+          "text": "SQL weekly feature view (store x dept x week): sales, snap_days, event_days, week index",
+          "status": "todo",
+          "note": ""
+        },
+        {
+          "id": "p2t11",
+          "text": "Join sales_history with calendar and derive is_holiday, snap",
+          "status": "done",
+          "note": "LEFT JOIN on day = d"
+        },
+        {
+          "id": "p2t12",
+          "text": "EDA: weekday profile, SNAP, events, category/state mix, growth, Pareto",
+          "status": "partial",
+          "note": "Numbers computed; charts not yet in project"
+        }
+      ]
+    },
+    {
+      "id": "p3",
+      "name": "Phase 3 - KNIME workflow",
+      "description": "Rebuild in labelled sections on the weekly view; time split, lags, correct metrics, write-back without duplicates.",
+      "tasks": [
+        {
+          "id": "e3a",
+          "text": "Build in labelled, coloured sections: Connect > Ingest > Clean > Split > Model > Evaluate > Write-back",
+          "status": "todo",
+          "note": "Grade 4"
+        },
+        {
+          "id": "e3b",
+          "text": "MySQL Connector credentials via flow variables or placeholders, never hardcoded in the exported file",
+          "status": "todo",
+          "note": ""
+        },
+        {
+          "id": "e3c",
+          "text": "Features documented (lags, SNAP, event, weekday) for Linear Regression Learner/Predictor",
+          "status": "todo",
+          "note": "Grade 5"
+        },
+        {
+          "id": "e3d",
+          "text": "Report clipped (>= 0) and unclipped scores separately; fix the Numeric Scorer NaN with Math Formula + GroupBy",
+          "status": "todo",
+          "note": "Report MAE, RMSE, R2 + MAPE; see p3t7"
+        },
+        {
+          "id": "e3e",
+          "text": "Gate: Reset all, Execute All, expected sales_predictions row count; run twice and confirm count does not grow",
+          "status": "todo",
+          "note": "Export only one executed knime/Bigdata_final.knwf + knime/knime_pipeline_architecture.png"
+        },
+        {
+          "id": "p3t1",
+          "text": "MySQL Connector + DB Query Reader (live SQL)",
+          "status": "done",
+          "note": ""
+        },
+        {
+          "id": "p3t2",
+          "text": "Missing Value, Numeric Outliers, Rule-based Row Splitter (d <= 1868), Linear Regression Learner/Predictor",
+          "status": "done",
+          "note": "Executed; old item-day design, R2 0.016"
+        },
+        {
+          "id": "p3t3",
+          "text": "Math Formula clipping (>= 0), Column Renamer/Filter, DB Writer to sales_predictions",
+          "status": "done",
+          "note": "Writes in APPEND mode (caused duplicates)"
+        },
+        {
+          "id": "p3t4",
+          "text": "Point DB Query Reader at the weekly feature view (remove CRC32 1% sample)",
+          "status": "todo",
+          "note": ""
+        },
+        {
+          "id": "p3t5",
+          "text": "Numeric Outliers: group by series, bounds from train only, replace with closest permitted value",
+          "status": "todo",
+          "note": ""
+        },
+        {
+          "id": "p3t6",
+          "text": "Lag Column: lag1, lag2, rolling-4 (use scaled by series mean)",
+          "status": "todo",
+          "note": ""
+        },
+        {
+          "id": "p3t7",
+          "text": "Metrics MAE, RMSE, R2 on untruncated test via Math Formula + GroupBy",
+          "status": "partial",
+          "note": "Numeric Scorer returned NaN / warning"
+        },
+        {
+          "id": "p3t8",
+          "text": "Add baselines (predict 0 / last week) and WAPE; show model beats them",
+          "status": "todo",
+          "note": ""
+        },
+        {
+          "id": "p3t9",
+          "text": "Time-split leakage check node (min test day > max train day)",
+          "status": "todo",
+          "note": ""
+        },
+        {
+          "id": "p3t10",
+          "text": "DB Writer: truncate/replace before write; confirm row count and MIN(predicted) >= 0",
+          "status": "todo",
+          "note": ""
+        },
+        {
+          "id": "p3t11",
+          "text": "Residual interpretation (by store, dept, SNAP week)",
+          "status": "todo",
+          "note": ""
+        },
+        {
+          "id": "p3t12",
+          "text": "Colored annotation boxes, clean unused nodes, export final .knwf + architecture PNG",
+          "status": "todo",
+          "note": "Two different .knwf copies exist (root = old 8-node)"
+        }
+      ]
+    },
+    {
+      "id": "p4",
+      "name": "Phase 4 - Data exports and reproducibility",
+      "description": "Numbered SQL scripts, safe credentials, README, GitHub, sample dump.",
+      "tasks": [
+        {
+          "id": "e4a",
+          "text": "Phase 0: create folder skeleton sql/ knime/ dashboard/screenshots/ presentation/ per required_files section 5",
+          "status": "todo",
+          "note": ""
+        },
+        {
+          "id": "e4b",
+          "text": "Confirm Final/.env is not tracked; rotate the password if it was ever committed",
+          "status": "todo",
+          "note": "git status shows no secrets"
+        },
+        {
+          "id": "e4c",
+          "text": "Clean-clone test: fresh folder, import sample dump, open KNIME workflow, execute, refresh Power BI; fix anything that breaks",
+          "status": "todo",
+          "note": "Basic-track gate"
+        },
+        {
+          "id": "e4d",
+          "text": "Plan vs Actual table: commitments, planned vs actual hours, variance, handling; answer the four Week 4 questions (what, when, why this product, hours used)",
+          "status": "todo",
+          "note": ""
+        },
+        {
+          "id": "e4e",
+          "text": "Final checklist pass against requirement/required_files.md section 2",
+          "status": "todo",
+          "note": ""
+        },
+        {
+          "id": "p4t1",
+          "text": "Consolidate scripts into sql/01_schema_and_import, 02_feature_engineering, 03_kpi_queries, 04_sales_predictions_schema",
+          "status": "partial",
+          "note": "Scattered in process/ and subrepo"
+        },
+        {
+          "id": "p4t2",
+          "text": "Remove hardcoded /media/deltan/... LOAD DATA paths; use placeholders",
+          "status": "todo",
+          "note": ""
+        },
+        {
+          "id": "p4t3",
+          "text": "Sample DB dump (about 1% / 100k rows) small enough for GitHub",
+          "status": "partial",
+          "note": "predictions.sql 3.8MB exists; full dumps are 1-2GB, do not commit"
+        },
+        {
+          "id": "p4t4",
+          "text": ".env.example + .gitignore; make sure .env is not committed",
+          "status": "todo",
+          "note": "Final/.env exists"
+        },
+        {
+          "id": "p4t5",
+          "text": "Root README: architecture, versions, reproduce steps, placeholders, WBS",
+          "status": "partial",
+          "note": "Only a basic Vietnamese README in subrepo"
+        },
+        {
+          "id": "p4t6",
+          "text": "GitHub repo with the required folder structure",
+          "status": "partial",
+          "note": "Repo exists (big-data-analytics-project), missing final files"
+        },
+        {
+          "id": "p4t7",
+          "text": "Fill all [TBD] metrics in Week2_Person2_Machine_Learning.md",
+          "status": "todo",
+          "note": ""
+        }
+      ]
+    },
+    {
+      "id": "p5",
+      "name": "Phase 5 - Power BI dashboard",
+      "description": "Live from MySQL, weekly actual vs forecast, KPIs, slicers, revenue.",
+      "tasks": [
+        {
+          "id": "e5a",
+          "text": "SQL view chain: predictions (deduped) > join sell_prices > revenue = units x price at SKU-store-day > store-week",
+          "status": "todo",
+          "note": "Phase 4 of execution plan; Grade 3, 6"
+        },
+        {
+          "id": "e5b",
+          "text": "Reconcile funnel raw rows > deduped rows > store-week rows (lh claims 39,496 > 19,748 > 110); update the plan if different",
+          "status": "todo",
+          "note": ""
+        },
+        {
+          "id": "e5c",
+          "text": "Flag complete weeks (7 days); verify 100 of 110 store-weeks are complete and use only those for error metrics",
+          "status": "todo",
+          "note": ""
+        },
+        {
+          "id": "e5d",
+          "text": "Write sql/03_kpi_queries.sql: MAE, MAPE, bias, WAPE per store, state, week, in units and USD",
+          "status": "todo",
+          "note": ""
+        },
+        {
+          "id": "e5e",
+          "text": "Recompute headline numbers: CA_1/CA_3 under-forecast weeks, CA_3 revenue MAE, state bias (CA -20.20%, TX +4.76%, WI +3.27%?), overall MAE/MAPE",
+          "status": "todo",
+          "note": "Treat lh numbers as hypotheses"
+        },
+        {
+          "id": "e5f",
+          "text": "Gate: process/numbers_verified.md, one page, each figure with its SQL source; feeds report, dashboard, slides",
+          "status": "todo",
+          "note": ""
+        },
+        {
+          "id": "e5g",
+          "text": "Dashboard separation rule: all 110 rows shown, metrics on the 100 complete weeks only",
+          "status": "todo",
+          "note": ""
+        },
+        {
+          "id": "e5h",
+          "text": "State vs store reconciliation view (Q5) and bias bar by state with zero baseline",
+          "status": "todo",
+          "note": ""
+        },
+        {
+          "id": "e5i",
+          "text": "Test: refresh from MySQL, filter CA > CA_3, cards match numbers_verified.md; save dashboard/m5_sales_forecasting_final.pbix",
+          "status": "todo",
+          "note": ""
+        },
+        {
+          "id": "p5t1",
+          "text": "Draft dashboard: Actual vs Predicted by forecast day, cat/state slicers, 3 KPI cards",
+          "status": "done",
+          "note": "m5_dashboard_week2.pbix"
+        },
+        {
+          "id": "p5t2",
+          "text": "Fix double-counting (dedupe predictions, check Records / Actual cards)",
+          "status": "todo",
+          "note": "Actual 17.47K = 2 x 8,734"
+        },
+        {
+          "id": "p5t3",
+          "text": "Weekly Actual vs Predicted on a single axis (no dual axis, no smoothing)",
+          "status": "todo",
+          "note": ""
+        },
+        {
+          "id": "p5t4",
+          "text": "KPI cards: total sales, forecast, WAPE/RMSE, active stores",
+          "status": "partial",
+          "note": "Actual / Forecast / Records exist"
+        },
+        {
+          "id": "p5t5",
+          "text": "Slicers: store, department, state, SNAP, date range",
+          "status": "partial",
+          "note": "Category and state exist"
+        },
+        {
+          "id": "p5t6",
+          "text": "Charts: weekday profile, SNAP lift by state, growth by store, top items",
+          "status": "todo",
+          "note": ""
+        },
+        {
+          "id": "p5t7",
+          "text": "Revenue KPIs from sell_prices (units x price)",
+          "status": "todo",
+          "note": ""
+        },
+        {
+          "id": "p5t8",
+          "text": "Test refresh against MySQL (live connection, not CSV)",
+          "status": "todo",
+          "note": ""
+        },
+        {
+          "id": "p5t9",
+          "text": "Export screenshots to dashboard/screenshots/",
+          "status": "todo",
+          "note": ""
+        }
+      ]
+    },
+    {
+      "id": "p6",
+      "name": "Phase 6 - Answers, recommendations, expansion, limitations",
+      "description": "Turn results into decisions, write the report and prepare the demo.",
+      "tasks": [
+        {
+          "id": "e6a",
+          "text": "Rec A: CA_1 / CA_3 stock-out review (evidence > action > KPI > trade-off: holding cost, spoilage)",
+          "status": "todo",
+          "note": "Based on DQ1"
+        },
+        {
+          "id": "e6b",
+          "text": "Rec B: CA_3 revenue-priority, rank SKUs by contribution to revenue error (trade-off vs unit-error priority)",
+          "status": "todo",
+          "note": "Based on DQ2"
+        },
+        {
+          "id": "e6c",
+          "text": "Rec C: state calibration, test per-state factors; accept only if bias and MAE both improve on held-out weeks",
+          "status": "todo",
+          "note": "Based on DQ3; overfitting risk with 1 year"
+        },
+        {
+          "id": "e6d",
+          "text": "IEEE two-column report 6-10 pages, >= 5 refs, PDF + editable DOCX/LaTeX, signed integrity sheet as cover",
+          "status": "todo",
+          "note": "Map 9 required sections into IEEE I-VI; KNIME test scores and post-aggregation errors in separate tables"
+        },
+        {
+          "id": "e6e",
+          "text": "Report gate: zero [TBD], every number traces to numbers_verified.md",
+          "status": "todo",
+          "note": ""
+        },
+        {
+          "id": "e6f",
+          "text": "presentation/Final_Project_Presentation.pptx, 9 slides: title/roles, SWOT+comms, problem+3 questions, architecture, data quality, ML design+metrics, demo, 3 recs, Plan vs Actual",
+          "status": "todo",
+          "note": ""
+        },
+        {
+          "id": "e6g",
+          "text": "One-laptop demo script, rehearse twice, backup screen recording + screenshots; Q&A prep (join keys, dedupe, revenue formula, time split, MAE vs MAPE vs RMSE)",
+          "status": "todo",
+          "note": "Gate: timed rehearsal with no manual fixes"
+        },
+        {
+          "id": "p6t1",
+          "text": "Answer Q1-Q3 with numbers from the dashboard",
+          "status": "todo",
+          "note": ""
+        },
+        {
+          "id": "p6t2",
+          "text": "Recommendation 1: weekend / SNAP-week uplift to reorder quotas (with overstock trade-off)",
+          "status": "todo",
+          "note": ""
+        },
+        {
+          "id": "p6t3",
+          "text": "Recommendation 2: promotion allocation by store (WI/TX/CA_3), not blanket by state",
+          "status": "todo",
+          "note": ""
+        },
+        {
+          "id": "p6t4",
+          "text": "Recommendation 3: separate policy for intermittent items (9% of series sell on <10% of days)",
+          "status": "todo",
+          "note": ""
+        },
+        {
+          "id": "p6t5",
+          "text": "Expansion (optional): K-Means item segmentation on demand, zero share, CV",
+          "status": "todo",
+          "note": ""
+        },
+        {
+          "id": "p6t6",
+          "text": "Limitations: 1 year only, 10-week test, linear/additive effects, pooled R2 inflated by series level",
+          "status": "todo",
+          "note": ""
+        },
+        {
+          "id": "p6t7",
+          "text": "Section 3 Data Quality draft (needs updating to full-data numbers)",
+          "status": "partial",
+          "note": "Week1_Person2_Data_Quality_Assessment.md"
+        },
+        {
+          "id": "p6t8",
+          "text": "Final report 8-12 pages, 9 sections, >= 5 citations, PDF + DOCX, signed integrity sheet",
+          "status": "todo",
+          "note": ""
+        },
+        {
+          "id": "p6t9",
+          "text": "Presentation deck (9 slides)",
+          "status": "todo",
+          "note": ""
+        },
+        {
+          "id": "p6t10",
+          "text": "Plan vs actual hours reflection",
+          "status": "partial",
+          "note": "15.5h of 24h logged at Week 2"
+        },
+        {
+          "id": "p6t11",
+          "text": "One-laptop end-to-end demo rehearsal (MySQL > KNIME > write-back > Power BI)",
+          "status": "todo",
+          "note": ""
+        }
+      ]
+    },
+    {
+      "id": "p7",
+      "name": "Phase 7 - Advanced track (after basic-track gate)",
+      "description": "Only after the clean-clone test passes. If grain changes, re-run numbers and update numbers_verified.md; never mix two grains in one report.",
+      "tasks": [
+        {
+          "id": "e7a",
+          "text": "Baselines (predict last week, predict 0) and WAPE to show the model beats them",
+          "status": "todo",
+          "note": "See p3t8"
+        },
+        {
+          "id": "e7b",
+          "text": "Lag features (lag1, lag2, rolling-4 scaled by series mean)",
+          "status": "todo",
+          "note": "See p3t6"
+        },
+        {
+          "id": "e7c",
+          "text": "Residual interpretation by store, department, SNAP week",
+          "status": "todo",
+          "note": "See p3t11; Grade 5"
+        },
+        {
+          "id": "e7d",
+          "text": "Move to store x dept x week grain",
+          "status": "todo",
+          "note": "See p1t6, p2t10"
+        },
+        {
+          "id": "e7e",
+          "text": "Structural zeros (store_closed Dec 25, on_sale)",
+          "status": "todo",
+          "note": "See p2t8"
+        },
+        {
+          "id": "e7f",
+          "text": "Extra dashboard charts: weekday profile, SNAP lift, growth, top items",
+          "status": "todo",
+          "note": "See p5t6"
+        },
+        {
+          "id": "e7g",
+          "text": "Intermittent-item policy, K-Means segmentation (optional)",
+          "status": "todo",
+          "note": "See p6t4, p6t5"
+        }
+      ]
+    }
+  ]
+}

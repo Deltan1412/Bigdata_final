@@ -1,0 +1,64 @@
+# Numbers collected from the run of `LinearRegression_weekly_v1`
+
+Generated 2026-11-10 12:26 by `process/knime/collect_run_numbers.py` from MySQL, the KNIME workspace and knime.log. Metrics are recomputed from the written predictions (sales_predictions_weekly).
+
+| ID | Value | Unit | Source | Note |
+|---|---:|---|---|---|
+| N016 | 6.7977 | % | sales_predictions_weekly + v_weekly_model | Test WAPE, model (clipped = as written) |
+| N139 | 290.2189 | units | sales_predictions_weekly + v_weekly_model | Test MAE, model |
+| N141 | 540.2936 | units | sales_predictions_weekly + v_weekly_model | Test RMSE, model |
+| N143 | 0.9855 | ratio | sales_predictions_weekly + v_weekly_model | Test R2, model (1 - SSE/SST) |
+| N140 | 326.6457 | units | sales_predictions_weekly + v_weekly_model | Test MAE, last-week baseline (lag1) |
+| N142 | 642.6607 | units | sales_predictions_weekly + v_weekly_model | Test RMSE, last-week baseline |
+| N144 | 0.9795 | ratio | sales_predictions_weekly + v_weekly_model | Test R2, last-week baseline |
+| N145 | 7.6509 | % | sales_predictions_weekly + v_weekly_model | Test WAPE, last-week baseline |
+| EXTRA-roll4 | 6.6975 | % | sales_predictions_weekly + v_weekly_model | Test WAPE, 4-week-average baseline (fairer baseline) |
+| EXTRA-bias | -3.3126 | % | sales_predictions_weekly + v_weekly_model | Total bias (sum forecast - sum actual) / sum actual |
+| N146 | 4.3991 | % | sales_predictions_weekly + v_weekly_model | Lowest store WAPE (CA_3) |
+| N147 | 10.8127 | % | sales_predictions_weekly + v_weekly_model | Highest store WAPE (WI_2) |
+| N148 | 5.3611 | % | sales_predictions_weekly + v_weekly_model | Lowest department WAPE (HOUSEHOLD_1) |
+| N149 | 13.5245 | % | sales_predictions_weekly + v_weekly_model | Highest department WAPE (HOBBIES_2) |
+| N150 | -4.9796 | % | sales_predictions_weekly + v_weekly_model | Lowest state bias (WI) |
+| N151 | -2.5006 | % | sales_predictions_weekly + v_weekly_model | Highest state bias (CA) |
+| N18x-CA | -2.5006 | % | sales_predictions_weekly + v_weekly_model | Forecast bias, CA (feeds N182-N184) |
+| N18x-TX | -2.6579 | % | sales_predictions_weekly + v_weekly_model | Forecast bias, TX (feeds N182-N184) |
+| N18x-WI | -4.9796 | % | sales_predictions_weekly + v_weekly_model | Forecast bias, WI (feeds N182-N184) |
+| N185 | 0 | states | sales_predictions_weekly + v_weekly_model | States with |bias| above 5% |
+| N154 | -4.8932 | % | sales_predictions_weekly + v_weekly_model | Bias in SNAP weeks (snap_days > 0, 413 rows) |
+| N155 | -0.9181 | % | sales_predictions_weekly + v_weekly_model | Bias in non-SNAP weeks (287 rows) |
+| N152 | 6 | of 10 weeks | sales_predictions_weekly + v_weekly_model | Test weeks where model WAPE < last-week WAPE |
+| EXTRA-weeks-vs-roll4 | 8 | of 10 weeks | sales_predictions_weekly + v_weekly_model | Test weeks where model beats the 4-week average |
+| N196 | 4.3851 | % | sales_predictions_weekly + v_weekly_model | Lowest weekly WAPE (week_idx 49) |
+| N197 | 12.1254 | % | sales_predictions_weekly + v_weekly_model | Highest weekly WAPE (week_idx 50) |
+| N153 | 0.0 | pp | sales_predictions_weekly + v_weekly_model | Unclipped minus clipped WAPE: min written prediction is 101.48 > 0, so max(pred, 0) never fired and both are identical |
+| N186 | 304.286 | units | derived (SQ-B, held-out test weeks) | MAE before state correction, weeks 48-52 |
+| N187 | 279.8122 | units | derived (SQ-B, held-out test weeks) | MAE after state factors calibrated on weeks 43-47: CA x1.014, TX x1.014, WI x1.047 |
+| EXTRA-bias-held-before | -4.2849 | % | derived | Total bias on held-out weeks, uncorrected |
+| EXTRA-bias-held-after | -2.0127 | % | derived | Total bias on held-out weeks, corrected (accept only if MAE and bias both improve) |
+| N157 | 700 | rows | MySQL | Rows in sales_predictions_weekly for this model after the run (run 1 if this was the first run) |
+| N158 | 700 | keys | MySQL | Distinct (store, dept, week) keys written |
+| N159 | 101.4802 | units | MySQL | Minimum predicted_sales written |
+| N160 | 0 | rows | MySQL | Rows where actual_sales differs from weekly_features.sales |
+| N045 | 700 | rows | MySQL | Rows in sales_predictions_weekly (this model) |
+| N043 | 3710 | rows | MySQL | Rows in the weekly table/view (v_weekly_model) |
+| N059 | 3290 | rows | MySQL | Rows the DB Query Reader returns (model_ready = 1) |
+| N061 | 2590 | rows | MySQL | Training rows |
+| N062 | 700 | rows | MySQL | Test rows |
+| N039 | 1 | weeks | MySQL | MIN(test week_idx) 43 - MAX(train week_idx) 42 |
+| N063 | 0 | cells | MySQL | NULL lags among the rows the Reader returns |
+| N156 | 0 | count | refit of the Learner on the train rows | NaN coefficients; Intercept=0.3419, snap_days=0.0078, event_days=-0.0220, closed_days=-0.0798, lag1_s=0.4893, lag2_s=-0.2149, roll4_s=0.3801 |
+| EXTRA-refit-check | 0.0 | units | refit vs written predictions | Max |refit prediction - written prediction|. About 0 means the written predictions come from exactly these coefficients |
+| N065 | 6 | checks | this script | Leakage: MIN(test week) > MAX(train week); Written rows = test rows; No duplicate keys (distinct keys = rows); MIN(predicted_sales) >= 0; actual_sales equals the source weekly sales; No NULL lags in the rows the model reads |
+| N064 | 6 | checks | this script | Failed: none. The re-run (run 2 vs run 1) check needs a second run |
+| N032 | 28 | nodes | workflow.knime (saved workspace copy) | Total nodes on the canvas: Bigdata_final_weekly |
+| SECTION-1 | 2 | nodes | workflow.knime | 1  Connect: credentials come from the Credentials Configuration, never stored in the file  (guide N051-N058 expects 8 sections: map by hand) |
+| SECTION-2 | 1 | nodes | workflow.knime | 2  Ingest: weekly model view (process/sql/result/02, section 6). Sample first, then full  (guide N051-N058 expects 8 sections: map by hand) |
+| SECTION-3 | 4 | nodes | workflow.knime | 3  Prepare: scale target and lags by the series mean (train-only mean, from the view)  (guide N051-N058 expects 8 sections: map by hand) |
+| SECTION-4 | 4 | nodes | workflow.knime | 4  Split by week + leakage check  (guide N051-N058 expects 8 sections: map by hand) |
+| SECTION-5 | 3 | nodes | workflow.knime | 5  Model + back to units, clip at 0  (guide N051-N058 expects 8 sections: map by hand) |
+| SECTION-6 | 10 | nodes | workflow.knime | 6  Evaluate vs last-week baseline (WAPE target <= 10%) and bias by state  (guide N051-N058 expects 8 sections: map by hand) |
+| SECTION-7 | 4 | nodes | workflow.knime | 7  Write-back: replace this model's rows, then append (process/sql/result/04, section 3)  (guide N051-N058 expects 8 sections: map by hand) |
+| N066 | 0.65 | min | knime.log | INDICATIVE ONLY: first to last 'End execute' of the last run cluster = 39 s, from 12:23:12 to 12:23:51. If the run was done in stages by hand this includes your waiting time; time one clean Reset all + Execute all for the real value |
+| N195 |  | % | not available | No capped (outlier) branch exists in the workflow; skip or build the optional branch |
+| N161 |  | units | needs KNIME | MAE gap, MySQL minus KNIME: read the Numeric Scorer MAE in KNIME and subtract N139 |
+| N067 |  | rows | needs run 2 | Row growth between run 1 and run 2: run Reset all + Execute all again, then re-run this script and subtract N157 |

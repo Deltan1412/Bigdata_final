@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Project Roadmap</title>
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --text:#1d2433; --muted:#667085; --line:#e1e5ec; --accent:#2f6fed; --done:#1f9d55; --partial:#e29a1a; --todo:#aab2c0; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#14171c; --card:#1d2128; --text:#e6e9ef; --muted:#9aa3b2; --line:#2e343e; --accent:#6d9bff; --done:#3fbf7a; --partial:#f0b23c; --todo:#5b6474; }
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:15px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif; }
+  main { max-width:900px; margin:0 auto; padding:20px 16px 60px; }
+  h1 { font-size:22px; margin:0 0 4px; }
+  .sub { color:var(--muted); font-size:13px; margin-bottom:14px; }
+  .toolbar { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:12px 0 18px; }
+  button { font:inherit; font-size:13px; padding:5px 10px; border:1px solid var(--line); background:var(--card); color:var(--text); border-radius:6px; cursor:pointer; }
+  button:hover { border-color:var(--accent); }
+  .status-msg { color:var(--muted); font-size:12px; }
+  .bar { height:10px; background:var(--line); border-radius:6px; overflow:hidden; }
+  .bar > span { display:block; height:100%; background:var(--accent); transition:width .2s; }
+  .overall { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:12px 14px; margin-bottom:16px; }
+  .overall .row, .phase-head .row { display:flex; justify-content:space-between; gap:10px; font-size:13px; margin-bottom:6px; }
+  .phase { background:var(--card); border:1px solid var(--line); border-radius:8px; margin-bottom:16px; }
+  .phase-head { padding:12px 14px; border-bottom:1px solid var(--line); }
+  .phase-head h2 { font-size:16px; margin:0 0 2px; }
+  .phase-head p { margin:0 0 8px; color:var(--muted); font-size:13px; }
+  .counts { color:var(--muted); }
+  ul { list-style:none; margin:0; padding:0; }
+  li.task { display:flex; gap:10px; align-items:flex-start; padding:8px 14px; border-bottom:1px solid var(--line); }
+  li.task:last-child { border-bottom:0; }
+  .st { flex:none; width:26px; height:26px; border-radius:50%; border:2px solid var(--todo); background:transparent; color:#fff; padding:0; font-size:14px; line-height:1; display:flex; align-items:center; justify-content:center; }
+  .st.partial { border-color:var(--partial); background:linear-gradient(90deg, var(--partial) 50%, transparent 50%); }
+  .st.done { border-color:var(--done); background:var(--done); }
+  .body { flex:1; min-width:0; }
+  .text { cursor:text; word-wrap:break-word; }
+  .done .text { color:var(--muted); text-decoration:line-through; }
+  .note { color:var(--muted); font-size:12.5px; cursor:text; }
+  .note.empty { opacity:.5; }
+  .tag { font-size:11px; padding:1px 6px; border-radius:10px; border:1px solid var(--partial); color:var(--partial); margin-left:6px; vertical-align:middle; }
+  .del { flex:none; border:0; background:transparent; color:var(--muted); font-size:16px; padding:0 4px; }
+  .del:hover { color:#d33; }
+  input.edit { width:100%; font:inherit; padding:3px 6px; border:1px solid var(--accent); border-radius:4px; background:var(--card); color:var(--text); }
+  form.add { display:flex; gap:8px; padding:10px 14px; border-top:1px solid var(--line); }
+  form.add input { flex:1; font:inherit; padding:5px 8px; border:1px solid var(--line); border-radius:6px; background:var(--bg); color:var(--text); }
+  .legend { font-size:12px; color:var(--muted); margin-bottom:10px; }
+</style>
+</head>
+<body>
+<main>
+  <h1 id="title">Roadmap</h1>
+  <div class="sub">Click the circle to cycle: to-do &rarr; partial &rarr; done. Click text or note to edit. Progress = done + &frac12; partial.</div>
+
+  <div class="toolbar">
+    <button id="btn-link" title="Pick roadmap.json; every change is then saved straight into that file (Chrome / Edge)">Link roadmap.json (auto-save)</button>
+    <button id="btn-export">Export JSON</button>
+    <button id="btn-import">Import JSON</button>
+    <button id="btn-reset">Reset to original</button>
+    <input type="file" id="file-import" accept="application/json,.json" hidden>
+    <span class="status-msg" id="save-msg"></span>
+  </div>
+
+  <div class="overall">
+    <div class="row"><strong>Overall</strong><span id="overall-text"></span></div>
+    <div class="bar"><span id="overall-bar"></span></div>
+  </div>
+
+  <div id="phases"></div>
+  <div class="legend">Saved automatically in this browser (localStorage). Use Export JSON, or Link roadmap.json, to keep the file in the project folder up to date.</div>
+</main>
+
+<script id="seed" type="application/json">{"title": "M5 Sales Forecasting - Final Project Roadmap", "version": 1, "phases": [{"id": "p1", "name": "Phase 1 - Scope definition", "description": "Keep M5 + MySQL > KNIME > MySQL > Power BI + Linear Regression. Adjust grain, outlier policy and features (scope v2).", "tasks": [{"id": "p1t1", "text": "Pivot to M5 Walmart dataset (11.1M rows, 3 states, 10 stores)", "status": "done", "note": ""}, {"id": "p1t2", "text": "Group SWOT, communication plan, 4-week WBS", "status": "done", "note": "Week 1 slides"}, {"id": "p1t3", "text": "Draft decision questions Q1-Q3", "status": "done", "note": "Rewritten with RIM as decision-maker; final wording in process/decision.md | Final set = Q1-Q3 (required). SQ-A / SQ-B below are extras, not counted as the 3 questions."}, {"id": "p1t4", "text": "Document dataset source, owner and licence (M5 / Kaggle) for Section 2", "status": "partial", "note": "Source known, licence text not cited yet"}, {"id": "p1t5", "text": "Name the decision-maker: Regional Inventory Manager (RIM) for CA, TX, WI (10 stores)", "status": "done", "note": "Owns weekly reorder quantities and stock allocation between stores. See process/decision.md"}, {"id": "p1t6", "text": "Confirm scope v2: store x dept x WEEK grain, week-ahead forecast", "status": "todo", "note": "Daily item-level WAPE 70-118% vs weekly dept-store 6.8%"}, {"id": "p1t7", "text": "Rewrite Q1: weekly units by store x dept for reorder quotas, with a measurable target (e.g. WAPE <= 10%)", "status": "done", "note": "How many units will each store sell in each department next week, so the RIM can set weekly reorder quantities, with WAPE <= 10%?"}, {"id": "p1t8", "text": "Rewrite Q2: fastest/slowest-growing store-category (TX +7%, WI +25%, CA_3 -4%), first vs last 28 days, so the RIM can shift stock allocation", "status": "partial", "note": "Question written (process/decision.md). Threshold 10 percentage points vs regional average is provisional: compute real store-category growth and pick it so about 2-4 flags appear."}, {"id": "p1t9", "text": "Rewrite Q3: SNAP / weekday / event uplift per state-category so the RIM can add stock a week ahead (holiday lift +14.2% not reproducible; events about -4%)", "status": "partial", "note": "Question written (process/decision.md). SNAP: WI +20.5%, TX +10.1%, CA +6.0%. Act-threshold 10% is provisional: confirm on full data."}, {"id": "s1", "text": "SQ-A (extra) Revenue error: which stores carry the largest weekly forecast error in USD, so the RIM can focus the weekly reorder review (flag a store above 20% of total revenue error)", "status": "partial", "note": "Question written in process/misc/decision.md. 20% is provisional: pick it from real shares so about 1-3 stores flag."}, {"id": "s2", "text": "SQ-B (extra) State bias: is the forecast systematically too low/high in any state, so the RIM can adjust that state's reorder quantities (act when bias beyond +/-5% and not caused by one store)", "status": "partial", "note": "Question written in process/misc/decision.md. +/-5% provisional; recompute CA/TX/WI bias before quoting."}, {"id": "p1t10", "text": "Fix required_files.md: official brief only asks for outlier 'retain or handle' rationale, not removal", "status": "done", "note": "Brief wording: 'rationale for retaining or handling outliers'. Updated KNIME node 4 and the Data Quality Audit row in requirement/required_files.md"}]}, {"id": "p2", "name": "Phase 2 - Data walk-through, outliers, variables", "description": "Verify what is really in MySQL, fix duplicates, add the missing data, replace the 'delete sales > 2.5' rule.", "tasks": [{"id": "p2t1", "text": "Load sales_history (CSV last 365 days) and calendar into MySQL", "status": "done", "note": ""}, {"id": "p2t2", "text": "Verify sales_history row count: expect 11,128,850 (import log says 22,257,700 = 2x)", "status": "todo", "note": "SELECT COUNT(*), COUNT(DISTINCT id, day)"}, {"id": "p2t3", "text": "If doubled: dedupe / reload sales_history; add PK (id, day) and indexes", "status": "todo", "note": ""}, {"id": "p2t4", "text": "Dedupe script for sales_predictions (39,496 > 19,748)", "status": "partial", "note": "Script exists; Power BI still shows 39.496K records. Add UNIQUE key."}, {"id": "p2t5", "text": "Load sell_prices into MySQL (99.8% coverage in window)", "status": "todo", "note": "Needed for revenue KPIs"}, {"id": "p2t6", "text": "Correct Week 1/2 stats: LIMIT 100000 covered only 3.3 days (d_1577-1580)", "status": "todo", "note": "87,390 rows / mean 0.394 / category shares are not full-year"}, {"id": "p2t7", "text": "Quality audit on full data: completeness, uniqueness, validity, outliers + Before/After table", "status": "partial", "note": "Profiling done off-CSV; needs SQL/KNIME version in project | Exact counts per check + Before vs After table (rows, %, cleaning rationale)"}, {"id": "p2t8", "text": "Flag structural zeros: store_closed (Dec 25 = 14 units chain-wide), on_sale from price", "status": "todo", "note": ""}, {"id": "p2t9", "text": "Outlier policy: series-grouped IQR on TRAIN weeks only, cap instead of delete; document units retained", "status": "todo", "note": "Old rule removed 14% rows = 73% of units | Record rows and units affected (cap, not delete)"}, {"id": "p2t10", "text": "SQL weekly feature view (store x dept x week): sales, snap_days, event_days, week index", "status": "todo", "note": ""}, {"id": "p2t11", "text": "Join sales_history with calendar and derive is_holiday, snap", "status": "done", "note": "LEFT JOIN on day = d"}, {"id": "p2t12", "text": "EDA: weekday profile, SNAP, events, category/state mix, growth, Pareto", "status": "partial", "note": "Numbers computed; charts not yet in project"}, {"id": "e2h", "text": "Gate: counts verified, Before/After table has real numbers, no [TBD] in Week 1 data-quality doc", "status": "todo", "note": ""}]}, {"id": "p3", "name": "Phase 3 - KNIME workflow", "description": "Rebuild in labelled sections on the weekly view; time split, lags, correct metrics, write-back without duplicates.", "tasks": [{"id": "p3t1", "text": "MySQL Connector + DB Query Reader (live SQL)", "status": "done", "note": ""}, {"id": "e3b", "text": "KNIME credentials via flow variables or placeholders, never hardcoded in the exported file", "status": "todo", "note": "Grade 4; Security & Ethics"}, {"id": "p3t2", "text": "Missing Value, Numeric Outliers, Rule-based Row Splitter (d <= 1868), Linear Regression Learner/Predictor", "status": "done", "note": "Executed; old item-day design, R2 0.016"}, {"id": "p3t3", "text": "Math Formula clipping (>= 0), Column Renamer/Filter, DB Writer to sales_predictions", "status": "done", "note": "Writes in APPEND mode (caused duplicates)"}, {"id": "p3t4", "text": "Point DB Query Reader at the weekly feature view (remove CRC32 1% sample)", "status": "todo", "note": ""}, {"id": "p3t5", "text": "Numeric Outliers: group by series, bounds from train only, replace with closest permitted value", "status": "todo", "note": ""}, {"id": "p3t6", "text": "Lag Column: lag1, lag2, rolling-4 (use scaled by series mean)", "status": "todo", "note": "Document the final feature list (lags, SNAP, event, weekday) in the report"}, {"id": "p3t7", "text": "Metrics MAE, RMSE, R2 on untruncated test via Math Formula + GroupBy", "status": "partial", "note": "Numeric Scorer returned NaN / warning | Report clipped (>=0) and unclipped separately; MAE, RMSE, R2 (+ MAPE/WAPE)"}, {"id": "p3t8", "text": "Add baselines (predict 0 / last week) and WAPE; show model beats them", "status": "todo", "note": ""}, {"id": "p3t9", "text": "Time-split leakage check node (min test day > max train day)", "status": "todo", "note": ""}, {"id": "p3t10", "text": "DB Writer: truncate/replace before write; confirm row count and MIN(predicted) >= 0", "status": "todo", "note": ""}, {"id": "p3t11", "text": "Residual interpretation (by store, dept, SNAP week)", "status": "todo", "note": "Include residual/bias by state: feeds SQ-B"}, {"id": "p3t12", "text": "Colored annotation boxes, clean unused nodes, export final .knwf + architecture PNG", "status": "todo", "note": "Two different .knwf copies exist (root = old 8-node)"}, {"id": "e3e", "text": "Gate: Reset all, Execute All; expected sales_predictions row count; run twice and the count does not grow", "status": "todo", "note": "Export one executed knime/Bigdata_final.knwf + knime/knime_pipeline_architecture.png"}]}, {"id": "p4", "name": "Phase 4 - Data exports and reproducibility", "description": "Numbered SQL scripts, safe credentials, README, GitHub, sample dump.", "tasks": [{"id": "e4a", "text": "Create folder skeleton sql/ knime/ dashboard/screenshots/ presentation/ (required_files section 5)", "status": "todo", "note": ""}, {"id": "p4t1", "text": "Consolidate scripts into sql/01_schema_and_import, 02_feature_engineering, 03_kpi_queries, 04_sales_predictions_schema", "status": "partial", "note": "Scattered in process/ and subrepo | 04 needs UNIQUE key + required columns; placeholder paths only"}, {"id": "p4t2", "text": "Remove hardcoded /media/deltan/... LOAD DATA paths; use placeholders", "status": "todo", "note": ""}, {"id": "p4t3", "text": "Sample DB dump (about 1% / 100k rows) small enough for GitHub", "status": "partial", "note": "predictions.sql 3.8MB exists; full dumps are 1-2GB, do not commit"}, {"id": "p4t4", "text": ".env.example + .gitignore; make sure .env is not committed", "status": "todo", "note": "Final/.env exists"}, {"id": "p4t5", "text": "Root README: architecture, versions, reproduce steps, placeholders, WBS", "status": "partial", "note": "Only a basic Vietnamese README in subrepo"}, {"id": "p4t6", "text": "GitHub repo with the required folder structure", "status": "partial", "note": "Repo exists (big-data-analytics-project), missing final files"}, {"id": "p4t7", "text": "Fill all [TBD] metrics in Week2_Person2_Machine_Learning.md", "status": "todo", "note": ""}, {"id": "e4c", "text": "Clean-clone test: fresh folder, import sample dump, open KNIME, execute, refresh Power BI; fix what breaks", "status": "todo", "note": "Basic-track gate"}, {"id": "e4e", "text": "Final checklist pass against requirement/required_files.md section 2", "status": "todo", "note": ""}]}, {"id": "p5", "name": "Phase 5 - Power BI dashboard", "description": "Live from MySQL, weekly actual vs forecast, KPIs, slicers, revenue.", "tasks": [{"id": "p5t1", "text": "Draft dashboard: Actual vs Predicted by forecast day, cat/state slicers, 3 KPI cards", "status": "done", "note": "m5_dashboard_week2.pbix"}, {"id": "e5d", "text": "Write sql/03_kpi_queries.sql: MAE, WAPE, MAPE per store / dept / week (units); complete 7-day weeks only", "status": "todo", "note": "Core KPIs. Extras (revenue, bias) are separate tasks below"}, {"id": "e5f", "text": "Gate: process/numbers_verified.md, one page, each figure with its SQL source (feeds report, dashboard, slides)", "status": "todo", "note": "Treat figures from earlier drafts (e.g. CA bias -20.20%) as hypotheses until recomputed"}, {"id": "p5t2", "text": "Fix double-counting (dedupe predictions, check Records / Actual cards)", "status": "todo", "note": "Actual 17.47K = 2 x 8,734"}, {"id": "p5t3", "text": "Weekly Actual vs Predicted on a single axis (no dual axis, no smoothing)", "status": "todo", "note": ""}, {"id": "p5t4", "text": "KPI cards: total sales, forecast, WAPE/RMSE, active stores", "status": "partial", "note": "Actual / Forecast / Records exist"}, {"id": "p5t5", "text": "Slicers: store, department, state, SNAP, date range", "status": "partial", "note": "Category and state exist"}, {"id": "p5t6", "text": "Charts: weekday profile, SNAP lift by state, growth by store, top items", "status": "todo", "note": ""}, {"id": "p5t7", "text": "Revenue KPIs from sell_prices (units x price)", "status": "todo", "note": "Extra (SQ-A): revenue = units x price, USD"}, {"id": "p5t8", "text": "Test refresh against MySQL (live connection, not CSV)", "status": "todo", "note": "Filter CA > CA_3, cards must match process/numbers_verified.md; save dashboard/m5_sales_forecasting_final.pbix"}, {"id": "p5t9", "text": "Export screenshots to dashboard/screenshots/", "status": "todo", "note": ""}, {"id": "x1", "text": "Extra (SQ-A): SQL chain predictions (deduped) > join sell_prices > revenue at SKU-store-day > store-week; revenue MAE and share of total revenue error per store", "status": "todo", "note": "Needs p2t5. Compare dollar ranking with unit-error ranking."}, {"id": "x2", "text": "Extra (SQ-B): state bias = (sum forecast - sum actual) / sum actual per state, and per store inside each state, over full test weeks", "status": "todo", "note": "Accept a per-state correction only if bias and MAE both improve on held-out weeks"}, {"id": "x3", "text": "Extra: dashboard bias-by-state bar (zero baseline) and state vs store reconciliation view", "status": "todo", "note": "After Actual vs Predicted and the core KPI cards work"}]}, {"id": "p6", "name": "Phase 6 - Answers, recommendations, expansion, limitations", "description": "Turn results into decisions, write the report and prepare the demo.", "tasks": [{"id": "p6t1", "text": "Answer Q1-Q3 with numbers from the dashboard", "status": "todo", "note": "Also answer SQ-A and SQ-B as extras"}, {"id": "p6t2", "text": "Recommendation 1: weekend / SNAP-week uplift to reorder quotas (with overstock trade-off)", "status": "todo", "note": ""}, {"id": "p6t3", "text": "Recommendation 2: promotion allocation by store (WI/TX/CA_3), not blanket by state", "status": "todo", "note": ""}, {"id": "p6t4", "text": "Recommendation 3: separate policy for intermittent items (9% of series sell on <10% of days)", "status": "todo", "note": ""}, {"id": "x4", "text": "Extra: use SQ-A / SQ-B results as the USD evidence and trade-offs in the 3 recommendations", "status": "todo", "note": "Supports 'expected ROI and trade-offs' on slide 8"}, {"id": "p6t5", "text": "Expansion (optional): K-Means item segmentation on demand, zero share, CV", "status": "todo", "note": ""}, {"id": "p6t6", "text": "Limitations: 1 year only, 10-week test, linear/additive effects, pooled R2 inflated by series level", "status": "todo", "note": ""}, {"id": "p6t7", "text": "Section 3 Data Quality draft (needs updating to full-data numbers)", "status": "partial", "note": "Week1_Person2_Data_Quality_Assessment.md"}, {"id": "p6t8", "text": "Final report 8-12 pages, 9 sections, >= 5 citations, PDF + DOCX, signed integrity sheet", "status": "todo", "note": "IEEE 2-col 6-10 pages also allowed; map 9 sections to I-VI; KNIME test scores and post-aggregation errors in separate tables; zero [TBD]; every number traces to numbers_verified.md"}, {"id": "p6t9", "text": "Presentation deck (9 slides)", "status": "todo", "note": "Slides: title/roles, SWOT+comms, problem+3 questions, architecture, data quality, ML+metrics, demo, 3 recs, Plan vs Actual"}, {"id": "p6t10", "text": "Plan vs actual hours reflection", "status": "partial", "note": "15.5h of 24h logged at Week 2 | Open with the four Week 4 questions (what, when, why this product, hours used)"}, {"id": "p6t11", "text": "One-laptop end-to-end demo rehearsal (MySQL > KNIME > write-back > Power BI)", "status": "todo", "note": "Rehearse twice; backup recording + screenshots; Q&A prep (join keys, dedupe, revenue formula, time split, MAE vs MAPE vs RMSE)"}]}]}</script>
+<script>
+(function () {
+  var LS_KEY = 'm5-roadmap-v1';
+  var SEED = JSON.parse(document.getElementById('seed').textContent);
+  var data, fileHandle = null;
+
+  function load() {
+    try { var s = localStorage.getItem(LS_KEY); if (s) return JSON.parse(s); } catch (e) {}
+    return JSON.parse(JSON.stringify(SEED));
+  }
+  function msg(t) { document.getElementById('save-msg').textContent = t; }
+  function save() {
+    try { localStorage.setItem(LS_KEY, JSON.stringify(data)); } catch (e) {}
+    if (fileHandle) {
+      fileHandle.createWritable().then(function (w) {
+        return w.write(JSON.stringify(data, null, 2)).then(function () { return w.close(); });
+      }).then(function () { msg('Saved to ' + fileHandle.name + ' at ' + new Date().toLocaleTimeString()); })
+        .catch(function (e) { msg('File save failed: ' + e.message); });
+    } else { msg('Saved in browser at ' + new Date().toLocaleTimeString()); }
+  }
+  function uid() { return 't' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5); }
+  function score(tasks) {
+    var d = 0, p = 0;
+    tasks.forEach(function (t) { if (t.status === 'done') d++; else if (t.status === 'partial') p++; });
+    return { done: d, partial: p, todo: tasks.length - d - p, pct: tasks.length ? Math.round((d + p / 2) / tasks.length * 100) : 0 };
+  }
+  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+
+  function inlineEdit(node, value, onSave) {
+    var input = el('input', 'edit'); input.value = value;
+    node.replaceWith(input); input.focus(); input.select();
+    var finished = false;
+    function finish(ok) { if (finished) return; finished = true; if (ok) onSave(input.value.trim()); render(); }
+    input.addEventListener('keydown', function (e) { if (e.key === 'Enter') finish(true); if (e.key === 'Escape') finish(false); });
+    input.addEventListener('blur', function () { finish(true); });
+  }
+
+  function render() {
+    var root = document.getElementById('phases'); root.textContent = '';
+    document.getElementById('title').textContent = data.title || 'Roadmap';
+    var all = [];
+    data.phases.forEach(function (ph) {
+      all = all.concat(ph.tasks);
+      var sc = score(ph.tasks);
+      var box = el('section', 'phase');
+      var head = el('div', 'phase-head');
+      head.appendChild(el('h2', null, ph.name));
+      if (ph.description) head.appendChild(el('p', null, ph.description));
+      var row = el('div', 'row');
+      row.appendChild(el('span', 'counts', sc.done + ' done · ' + sc.partial + ' partial · ' + sc.todo + ' to-do'));
+      row.appendChild(el('strong', null, sc.pct + '%'));
+      head.appendChild(row);
+      var bar = el('div', 'bar'); var fill = el('span'); fill.style.width = sc.pct + '%'; bar.appendChild(fill); head.appendChild(bar);
+      box.appendChild(head);
+
+      var ul = el('ul');
+      ph.tasks.forEach(function (t) {
+        var li = el('li', 'task ' + t.status);
+        var st = el('button', 'st ' + t.status, t.status === 'done' ? '✓' : '');
+        st.title = t.status === 'done' ? 'Done (click: back to to-do)' : t.status === 'partial' ? 'Partially done (click: mark done)' : 'To-do (click: mark partial)';
+        st.addEventListener('click', function () {
+          t.status = t.status === 'todo' ? 'partial' : t.status === 'partial' ? 'done' : 'todo';
+          save(); render();
+        });
+        var body = el('div', 'body');
+        var text = el('div', 'text', t.text);
+        if (t.status === 'partial') text.appendChild(el('span', 'tag', 'partial'));
+        text.addEventListener('click', function () { inlineEdit(text, t.text, function (v) { if (v) { t.text = v; save(); } }); });
+        var note = el('div', 'note' + (t.note ? '' : ' empty'), t.note || 'add note…');
+        note.addEventListener('click', function () { inlineEdit(note, t.note || '', function (v) { t.note = v; save(); }); });
+        body.appendChild(text); body.appendChild(note);
+        var del = el('button', 'del', '×'); del.title = 'Delete task';
+        del.addEventListener('click', function () {
+          if (confirm('Delete this task?\n\n' + t.text)) { ph.tasks = ph.tasks.filter(function (x) { return x !== t; }); save(); render(); }
+        });
+        li.appendChild(st); li.appendChild(body); li.appendChild(del); ul.appendChild(li);
+      });
+      box.appendChild(ul);
+
+      var form = el('form', 'add');
+      var inp = el('input'); inp.placeholder = 'Add a to-do to this phase…';
+      var btn = el('button', null, 'Add'); btn.type = 'submit';
+      form.appendChild(inp); form.appendChild(btn);
+      form.addEventListener('submit', function (e) {
+        e.preventDefault(); var v = inp.value.trim(); if (!v) return;
+        ph.tasks.push({ id: uid(), text: v, status: 'todo', note: '' }); save(); render();
+      });
+      box.appendChild(form);
+      root.appendChild(box);
+    });
+    var o = score(all);
+    document.getElementById('overall-text').textContent = o.done + ' done · ' + o.partial + ' partial · ' + o.todo + ' to-do of ' + all.length + ' (' + o.pct + '%)';
+    document.getElementById('overall-bar').style.width = o.pct + '%';
+  }
+
+  function validate(d) { return d && Array.isArray(d.phases) && d.phases.every(function (p) { return p && Array.isArray(p.tasks); }); }
+
+  document.getElementById('btn-export').addEventListener('click', function () {
+    var blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'roadmap.json';
+    document.body.appendChild(a); a.click(); a.remove();
+  });
+  document.getElementById('btn-import').addEventListener('click', function () { document.getElementById('file-import').click(); });
+  document.getElementById('file-import').addEventListener('change', function (e) {
+    var f = e.target.files[0]; if (!f) return;
+    f.text().then(function (txt) {
+      var d = JSON.parse(txt);
+      if (!validate(d)) throw new Error('not a roadmap file');
+      data = d; save(); render();
+    }).catch(function (err) { alert('Import failed: ' + err.message); });
+    e.target.value = '';
+  });
+  document.getElementById('btn-reset').addEventListener('click', function () {
+    if (confirm('Discard all changes made in this browser and go back to the original roadmap?')) {
+      data = JSON.parse(JSON.stringify(SEED)); save(); render();
+    }
+  });
+  var linkBtn = document.getElementById('btn-link');
+  if (!window.showOpenFilePicker) { linkBtn.disabled = true; linkBtn.title = 'Needs Chrome or Edge'; }
+  linkBtn.addEventListener('click', function () {
+    window.showOpenFilePicker({ types: [{ description: 'JSON', accept: { 'application/json': ['.json'] } }] }).then(function (hs) {
+      var h = hs[0];
+      return h.requestPermission({ mode: 'readwrite' }).then(function (perm) {
+        if (perm !== 'granted') throw new Error('write permission denied');
+        return h.getFile();
+      }).then(function (f) { return f.text(); }).then(function (txt) {
+        var d = JSON.parse(txt);
+        if (!validate(d)) throw new Error('not a roadmap file');
+        data = d; fileHandle = h; linkBtn.textContent = 'Linked: ' + h.name; save(); render();
+      });
+    }).catch(function (e) { if (e.name !== 'AbortError') alert('Link failed: ' + e.message); });
+  });
+
+  data = load(); render(); msg('');
+})();
+</script>
+</body>
+</html>

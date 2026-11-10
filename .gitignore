@@ -1,0 +1,14 @@
+# secrets
+.env
+
+# large data (re-downloadable / regenerable) - GitHub 100MB limit
+data/raw/
+process/sql/dump/
+
+# misc
+*.bak
+.vscode/
+
+# nested clone / editor locks
+process/misc/big-data-analytics-project/
+.~lock.*
